@@ -1,13 +1,13 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import os
 from openai import OpenAI
 
 app = Flask(__name__)
 
-# Hugging Face Router client
+# Hugging Face client (free model)
 client = OpenAI(
     base_url="https://router.huggingface.co/v1",
-    api_key=os.getenv("HF_TOKEN"),
+    api_key=os.getenv("HF_TOKEN")
 )
 
 @app.route("/")
@@ -19,12 +19,12 @@ def chat():
     user_input = request.form.get("message")
     try:
         completion = client.chat.completions.create(
-            model="google/flan-t5-base",  # <-- free model
-            messages=[{"role": "user", "content": user_input}],
+            model="google/flan-t5-base",  # Free Hugging Face model
+            messages=[{"role":"user","content":user_input}],
             max_tokens=300
         )
         reply = completion.choices[0].message.content
     except Exception as e:
         reply = f"AI Error: {e}"
-
     return jsonify({"reply": reply})
+

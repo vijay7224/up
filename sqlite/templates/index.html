@@ -1,205 +1,124 @@
-
+!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Voice Combo Chatbot</title>
-
+<title>AI Chatbot</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,sans-serif;}
-
-body{
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:linear-gradient(135deg,#4e73df,#1cc88a);
-    transition:0.3s;
+body {
+    font-family: Arial, sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
 }
-
-.dark{
-    background:#121212;
+.chat-container {
+    background: white;
+    width: 400px;
+    max-width: 90%;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
 }
-
-.chat-container{
-    width:420px;
-    max-width:95%;
-    height:600px;
-    background:white;
-    border-radius:20px;
-    display:flex;
-    flex-direction:column;
-    box-shadow:0 15px 40px rgba(0,0,0,0.3);
-    overflow:hidden;
-    transition:0.3s;
+#chat-box {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 400px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
 }
-
-.dark .chat-container{
-    background:#1e1e1e;
-    color:white;
+.user-msg {
+    text-align: right;
+    margin: 5px 0;
+    color: white;
+    background: #007bff;
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 12px;
 }
-
-.chat-header{
-    padding:15px;
-    background:#4e73df;
-    color:white;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+.bot-msg {
+    text-align: left;
+    margin: 5px 0;
+    color: black;
+    background: #e5e5ea;
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 12px;
 }
-
-.toggle-btn{
-    background:white;
-    border:none;
-    padding:5px 10px;
-    border-radius:20px;
-    cursor:pointer;
+#chat-form {
+    display: flex;
 }
-
-.chat-box{
-    flex:1;
-    padding:15px;
-    overflow-y:auto;
-    display:flex;
-    flex-direction:column;
+#user-input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
 }
-
-.message{
-    max-width:75%;
-    padding:10px 15px;
-    margin-bottom:10px;
-    border-radius:20px;
-    animation:fadeIn 0.3s ease-in-out;
+button {
+    padding: 8px 16px;
+    margin-left: 5px;
+    border-radius: 8px;
+    border: none;
+    background: #007bff;
+    color: white;
+    cursor: pointer;
 }
-
-.user{
-    background:#4e73df;
-    color:white;
-    align-self:flex-end;
+.typing {
+    display: inline-block;
+    border-right: 2px solid #333;
+    animation: blink 0.7s steps(1) infinite;
 }
-
-.bot{
-    background:#e4e6eb;
-    color:black;
-    align-self:flex-start;
+@keyframes blink {
+    50% { border-color: transparent; }
 }
-
-.dark .bot{
-    background:#333;
-    color:white;
-}
-
-@keyframes fadeIn{
-    from{opacity:0;transform:translateY(10px);}
-    to{opacity:1;transform:translateY(0);}
-}
-
-.chat-input{
-    display:flex;
-    padding:10px;
-    border-top:1px solid #ccc;
-}
-
-.chat-input input{
-    flex:1;
-    padding:10px;
-    border-radius:20px;
-    border:1px solid #ccc;
-    outline:none;
-}
-
-.chat-input button{
-    margin-left:5px;
-    padding:10px 12px;
-    border:none;
-    border-radius:50%;
-    cursor:pointer;
-    font-size:16px;
-}
-
-.send-btn{background:#1cc88a;color:white;}
-.mic-btn{background:#ff4d4d;color:white;}
 </style>
 </head>
 <body>
-
 <div class="chat-container">
-    <div class="chat-header">
-        🤖 AI Voice Chatbot
-        <button class="toggle-btn" onclick="toggleDark()">🌙</button>
-    </div>
-
-    <div class="chat-box" id="chatBox"></div>
-
-    <div class="chat-input">
-        <input type="text" id="userInput" placeholder="Type or speak...">
-        <button class="mic-btn" onclick="startListening()">🎤</button>
-        <button class="send-btn" onclick="sendMessage()">➤</button>
-    </div>
+    <h2>AI Chatbot</h2>
+    <div id="chat-box"></div>
+    <form id="chat-form">
+        <input type="text" id="user-input" placeholder="Type a message" required>
+        <button type="submit">Send</button>
+    </form>
 </div>
 
 <script>
-function toggleDark(){
-    document.body.classList.toggle("dark");
-}
+const form = document.getElementById("chat-form");
+const chatBox = document.getElementById("chat-box");
 
-function addMessage(text,className){
-    const div=document.createElement("div");
-    div.classList.add("message",className);
-    div.innerText=text;
-    document.getElementById("chatBox").appendChild(div);
-    document.getElementById("chatBox").scrollTop=9999;
-    return div;
-}
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const message = document.getElementById("user-input").value;
+    chatBox.innerHTML += `<div class="user-msg">${message}</div>`;
+    document.getElementById("user-input").value = "";
 
-function sendMessage(){
-    let input=document.getElementById("userInput");
-    let message=input.value.trim();
-    if(message==="") return;
+    // Bot typing animation
+    const typingDiv = document.createElement("div");
+    typingDiv.className = "bot-msg typing";
+    typingDiv.textContent = "Typing...";
+    chatBox.appendChild(typingDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
 
-    addMessage(message,"user");
-    input.value="";
-
-    fetch("/chat",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({message:message})
-    })
-    .then(res=>res.json())
-    .then(data=>{
-        addMessage(data.reply,"bot");
-        speak(data.reply);
-    })
-    .catch(()=>{
-        addMessage("Server Error","bot");
-    });
-}
-
-/* 🎤 Voice Input (Browser STT) */
-function startListening(){
-    if(!('webkitSpeechRecognition' in window)){
-        alert("Speech Recognition not supported");
-        return;
+    try {
+        const res = await fetch("/chat", {
+            method: "POST",
+            body: new URLSearchParams({message}),
+        });
+        const data = await res.json();
+        typingDiv.remove();
+        chatBox.innerHTML += `<div class="bot-msg">${data.reply}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    } catch(err) {
+        typingDiv.remove();
+        chatBox.innerHTML += `<div class="bot-msg">Error: ${err}</div>`;
     }
-
-    let recognition=new webkitSpeechRecognition();
-    recognition.lang="hi-IN";
-    recognition.start();
-
-    recognition.onresult=function(event){
-        let speechResult=event.results[0][0].transcript;
-        document.getElementById("userInput").value=speechResult;
-        sendMessage();
-    };
-}
-
-/* 🔊 Voice Output */
-function speak(text){
-    let speech=new SpeechSynthesisUtterance(text);
-    speech.lang="hi-IN";
-    window.speechSynthesis.speak(speech);
-}
+});
 </script>
-
 </body>
 </html>

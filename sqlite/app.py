@@ -19,7 +19,8 @@ def chat():
     user_input = request.form.get("message")
     try:
         completion = client.chat.completions.create(
-            model="mistral-instruct-v0.1",  # Free chat-compatible model
+            model="deepseek-ai/DeepSeek-R1",  
+# Free chat-compatible model
             messages=[{"role":"user","content":user_input}],
             max_tokens=300
         )

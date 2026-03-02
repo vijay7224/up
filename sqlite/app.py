@@ -4,10 +4,10 @@ from openai import OpenAI
 
 app = Flask(__name__)
 
-# Hugging Face client (free model)
+# Hugging Face Router client
 client = OpenAI(
     base_url="https://router.huggingface.co/v1",
-    api_key=os.getenv("HF_TOKEN")
+    api_key=os.getenv("HF_TOKEN")  # Make sure HF_TOKEN is set
 )
 
 @app.route("/")
@@ -19,7 +19,7 @@ def chat():
     user_input = request.form.get("message")
     try:
         completion = client.chat.completions.create(
-            model="google/flan-t5-base",  # Free Hugging Face model
+            model="mistral-instruct-v0.1",  # Free chat-compatible model
             messages=[{"role":"user","content":user_input}],
             max_tokens=300
         )

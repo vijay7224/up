@@ -1,109 +1,30 @@
-import os
-import requests
 from flask import Flask, render_template, request, jsonify
+import os
 from openai import OpenAI
 
 app = Flask(__name__)
 
-# ==============================
-# 🔐 Environment Variables
-# ==============================
-BHASHINI_API_KEY = os.getenv("BHASHINI_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# Hugging Face Router client
+client = OpenAI(
+    base_url="https://router.huggingface.co/v1",
+    api_key=os.getenv("HF_TOKEN"),
+)
 
-client = OpenAI(api_key=OPENAI_API_KEY)
-
-BHASHINI_ENDPOINT = "https://dhruva-api.bhashini.gov.in/services/inference/pipeline"
-
-# ==============================
-# 🌐 Translation Function
-# ==============================
-def translate_text(text, source_lang, target_lang):
-    try:
-        headers = {
-            "Authorization": f"Bearer {BHASHINI_API_KEY}",
-            "Content-Type": "application/json"
-        }
-
-        payload = {
-            "pipelineTasks": [{
-                "taskType": "translation",
-                "config": {
-                    "language": {
-                        "sourceLanguage": source_lang,
-                        "targetLanguage": target_lang
-                    }
-                }
-            }],
-            "inputData": {
-                "input": [{"source": text}]
-            }
-        }
-
-        response = requests.post(BHASHINI_ENDPOINT, headers=headers, json=payload)
-        result = response.json()
-
-        return result["pipelineResponse"][0]["output"][0]["target"]
-
-    except Exception as e:
-        print("Translation Error:", e)
-        return text  # fallback
-
-# ==============================
-# 🤖 OpenAI Smart Reply
-# ==============================
-def ai_reply(text, chat_history):
-    try:
-        messages = [{"role": "system", "content": "You are a helpful multilingual AI assistant."}]
-
-        # Add previous chat history (memory)
-        for msg in chat_history:
-            messages.append(msg)
-
-        messages.append({"role": "user", "content": text})
-
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=messages
-        )
-
-        return response.choices[0].message.content
-
-    except Exception as e:
-        print("OpenAI Error:", e)
-        return "Sorry, AI service is temporarily unavailable."
-
-# ==============================
-# 🏠 Home Route
-# ==============================
 @app.route("/")
-def home():
+def index():
     return render_template("index.html")
 
-# ==============================
-# 💬 Chat API
-# ==============================
 @app.route("/chat", methods=["POST"])
 def chat():
+    user_input = request.form.get("message")
     try:
-        data = request.get_json()
-        user_text = data.get("message")
-        chat_history = data.get("history", [])
-
-        # 1️⃣ Hindi → English
-        english_text = translate_text(user_text, "hi", "en")
-
-        # 2️⃣ AI Response
-        ai_english_reply = ai_reply(english_text, chat_history)
-
-        # 3️⃣ English → Hindi
-        final_reply = translate_text(ai_english_reply, "en", "hi")
-
-        return jsonify({
-            "reply": final_reply,
-            "english_reply": ai_english_reply
-        })
-
+        completion = client.chat.completions.create(
+            model="moonshotai/Kimi-K2-Instruct-0905",
+            messages=[{"role": "user", "content": user_input}],
+            max_tokens=300
+        )
+        reply = completion.choices[0].message.content
     except Exception as e:
-        print("Chat Error:", e)
-        return jsonify({"reply": "Server error occurred."}), 500
+        reply = f"AI Error: {e}"
+
+    return jsonify({"reply": reply})

@@ -20,8 +20,9 @@ def chat():
     try:
         # User-friendly prompt instructs the model to give short, clear, beginner-friendly answers
         system_prompt = (
-            "You are an AI assistant. Answer the user in simple, clear, beginner-friendly text. "
-            "Do not include internal reasoning steps. Use short paragraphs and examples when possible."
+            "You are a friendly AI assistant. Respond in simple, concise, and approachable language. "
+            "Do NOT include internal thoughts, <think> tags, or reasoning steps. "
+            "Use short sentences, emojis if appropriate, and examples for clarity."
         )
         completion = client.chat.completions.create(
             model="deepseek-ai/DeepSeek-R1",  # free chat-compatible model

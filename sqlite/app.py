@@ -19,7 +19,7 @@ def chat():
     user_input = request.form.get("message")
     try:
         completion = client.chat.completions.create(
-            model="moonshotai/Kimi-K2-Instruct-0905",
+            model="google/flan-t5-base",  # <-- free model
             messages=[{"role": "user", "content": user_input}],
             max_tokens=300
         )

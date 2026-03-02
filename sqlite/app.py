@@ -7,7 +7,7 @@ app = Flask(__name__)
 # Hugging Face Router client
 client = OpenAI(
     base_url="https://router.huggingface.co/v1",
-    api_key=os.getenv("HF_TOKEN")  # Make sure HF_TOKEN is set
+    api_key=os.getenv("HF_TOKEN")
 )
 
 @app.route("/")
@@ -18,10 +18,17 @@ def index():
 def chat():
     user_input = request.form.get("message")
     try:
+        # User-friendly prompt instructs the model to give short, clear, beginner-friendly answers
+        system_prompt = (
+            "You are an AI assistant. Answer the user in simple, clear, beginner-friendly text. "
+            "Do not include internal reasoning steps. Use short paragraphs and examples when possible."
+        )
         completion = client.chat.completions.create(
-            model="deepseek-ai/DeepSeek-R1",  
-# Free chat-compatible model
-            messages=[{"role":"user","content":user_input}],
+            model="deepseek-ai/DeepSeek-R1",  # free chat-compatible model
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_input}
+            ],
             max_tokens=300
         )
         reply = completion.choices[0].message.content

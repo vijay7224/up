@@ -21,7 +21,7 @@ def chat():
     try:
         # Strict system prompt to avoid <think> and internal reasoning
         system_prompt = (
-            "You are a friendly AI assistant. ONLY reply with user-facing text in simple English. "
+            "You are a friendly AI assistant. ONLY reply with user-facing text in simple English Hindi. "
             "Do NOT generate any internal reasoning, thought process, or <think> tags. "
             "Never explain how you are thinking. "
             "Use short sentences, examples, and emojis when helpful. "
@@ -33,7 +33,7 @@ def chat():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_input}
             ],
-            max_tokens=300
+            max_tokens=200
         )
         reply = completion.choices[0].message.content
         # Strip any stray <think> blocks just in case
